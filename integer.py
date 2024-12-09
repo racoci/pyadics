@@ -1,8 +1,8 @@
 """
 This module demonstrates a p-adic arithmetic model without consuming the original
-digit generators. Instead, each P_Adic holds a 'digit_factory' that can produce a fresh
+digit generators. Instead, each Integer_P_Adic holds a 'digit_factory' that can produce a fresh
 identical infinite generator of digits each time it is called. This allows us to
-perform multiple operations on the same P_Adic number without losing the original data.
+perform multiple operations on the same Integer_P_Adic number without losing the original data.
 
 We test field axioms and properties similar to before, but now we ensure reproducibility
 and no unwanted consumption of generators.
@@ -29,7 +29,7 @@ def stable_p_adic(p=DEFAULT_PRIME_BASE, seed=None):
                 d = rng.randint(0, p-1)
                 yield d
         return gen()
-    return P_Adic(p, digit_factory)
+    return Integer_P_Adic(p, digit_factory)
 
 def p_adic_equal(x, y, num_digits=DEFAULT_MAX_P_GITS):
     """
@@ -54,14 +54,14 @@ def p_adic_zero(p=DEFAULT_PRIME_BASE):
         def gen():
             yield 0
         return gen()
-    return P_Adic(p, digit_factory)
+    return Integer_P_Adic(p, digit_factory)
 
 def p_adic_one(p=DEFAULT_PRIME_BASE):
     def digit_factory():
         def gen():
             yield 1
         return gen()
-    return P_Adic(p, digit_factory)
+    return Integer_P_Adic(p, digit_factory)
 
 def extended_gcd(a, b):
     """
@@ -93,9 +93,9 @@ def p_adic_from_integer(n: int, p=DEFAULT_PRIME_BASE):
 
         return gen()
 
-    return P_Adic(p, number_generator)
+    return Integer_P_Adic(p, number_generator)
 
-class P_Adic:
+class Integer_P_Adic:
     """
     A p-adic number represented by a digit_factory that can produce identical
     digit sequences each time it's called.
@@ -119,7 +119,7 @@ class P_Adic:
             
             return gen()
                     
-        return P_Adic(p, copy_generator)
+        return Integer_P_Adic(p, copy_generator)
 
     def __str__(self):
         # Show 20 digits for representation:
@@ -158,7 +158,7 @@ class P_Adic:
                 
             return gen()
 
-        return P_Adic(p, left_shift_factory)
+        return Integer_P_Adic(p, left_shift_factory)
         
     def __rshift__(self, n):
         # self >> n
@@ -182,7 +182,7 @@ class P_Adic:
                 
             return gen()
 
-        return P_Adic(p, right_shift_factory)
+        return Integer_P_Adic(p, right_shift_factory)
     
     def __add__(self, other):
         if self.p != other.p:
@@ -193,9 +193,8 @@ class P_Adic:
         yg = other.digit_factory()
 
         def sum_factory():
+            carry = 0
             def gen():
-                carry = 0
-
                 for dx, dy in itertools.zip_longest(xg, yg, fillvalue=0):
                     s = dx + dy + carry
                     digit = s % p
@@ -204,7 +203,7 @@ class P_Adic:
             
             return gen()
     
-        return P_Adic(p, sum_factory)
+        return Integer_P_Adic(p, sum_factory)
     
     def __radd__(self, other):
         if self.p != other.p:
@@ -250,9 +249,9 @@ class P_Adic:
                         yield digit
                 return gen()
 
-            return P_Adic(self.p, prod_factory)
+            return Integer_P_Adic(self.p, prod_factory)
         
-        if isinstance(other, P_Adic):
+        if isinstance(other, Integer_P_Adic):
             if self.p != other.p:
                 raise ValueError("Cannot multiply p-adics with different primes.")
             
@@ -302,7 +301,7 @@ class P_Adic:
 
                 return gen()
 
-            return P_Adic(p, product_factory)
+            return Integer_P_Adic(p, product_factory)
         
 
         raise ValueError(f"Cannot multiply PAddic number by {type(other)}")
@@ -316,7 +315,7 @@ class P_Adic:
                 for d in base_g:
                     yield p - d - 1
             return gen()
-        return P_Adic(p, digit_factory)
+        return Integer_P_Adic(p, digit_factory)
     
     def __eq__(self, other):
         return p_adic_equal(self, other)
@@ -326,3 +325,6 @@ class P_Adic:
 
     def __neg__(self):
         return ~self + p_adic_one(self.p)
+    
+    def to_base(q: int):
+        p = self.p

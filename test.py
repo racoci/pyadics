@@ -1,4 +1,55 @@
-from pyadics import *
+from integer import *
+
+def is_addition_commutative(x,y):
+    is_commutative = x+y == y+x
+    if not is_commutative:
+        print("Commutativity of addition broke!")
+        print(f"{x} + {y} == {x+y}")
+        print(f"{y} + {x} == {y+x}")
+
+    return is_commutative
+
+def is_addition_associative(x,y,z):
+    x_plus_y = x + y
+    lhs = x_plus_y + z
+    debug1 = f"{x_plus_y} + {z} == {lhs}"
+    y_plus_z = y + z
+    rhs = x + y_plus_z
+    debug2 = f"{x} + {y_plus_z} == {rhs}"
+    is_associative = lhs == rhs
+    if not is_associative:
+        print(f"Addition not associative for {x}, {y}, {z}.\n{debug1}\n{debug2}")
+    
+    return is_associative
+
+def is_addtion_neutral(x, zero):
+    is_zero_neutral = x+zero == x
+    if not is_zero_neutral:
+        print(f"Zero is not neutral for {x}")
+
+    return is_zero_neutral
+
+def is_multiplication_commutative(x,y):
+    is_commutative = x*y == y*x
+    if not is_commutative:
+        print("Multiplication not commutative!")
+        print(f"{x} * {y} == {x*y}")
+        print(f"{y} * {x} == {y*x}")
+    
+    return is_commutative
+
+def is_multiplication_associative(x,y,z):
+    x_times_y = x * y
+    lhs = x_times_y * z
+    debug1 = f"{x_times_y} * {z} == {lhs}"
+    y_times_z = y * z
+    rhs = x * y_times_z
+    debug2 = f"{x} * {y_times_z} == {rhs}"
+    is_associative = lhs == rhs
+    if not is_associative:
+        print(f"Multiplication not associative for {x}, {y}, {z}.\n{debug1}\n{debug2}")
+    
+    return is_associative
 
 def test_field_axioms(p=5, tests=1000):
     """
@@ -29,34 +80,25 @@ def test_field_axioms(p=5, tests=1000):
         z = stable_p_adic(p, z_seed)
         print(f"z_{test_i} = {z}")
 
-        # (x+y)=(y+x)
-        if x+y != y+x:
-            print("Commutativity broke!")
-            print(f"{x} + {y} == {x+y}")
-            print(f"{y} + {x} == {y+x}")
+        if not is_addition_commutative(x,y):
             return
 
-        # ((x+y)+z)=(x+(y+z))
-        x_plus_y = x + y
-        lrs = x_plus_y + z
-        debug1 = f"{x_plus_y} + {z} == {lrs}"
-        y_plus_z = y + z
-        rhs = x + y_plus_z
-        debug2 = f"{x} + {y_plus_z} == {rhs}"
-        if (x+y)+z != x+(y+z):
-            print(f"Addition not associative for {x}, {y}, {z}.\n{debug1}\n{debug2}")
+        if not is_addition_associative(x,y,z):
             return
 
-        # x+0=x
-        if x+zero != x:
-            print("Additive identity broken!")
+        if not is_addtion_neutral(x, zero):
             return
 
-        # x*y = y*x
-        if x*y != y*x:
-            print("Multiplication not commutative!")
-            print(f"{x} * {y} == {x*y}")
-            print(f"{y} * {x} == {y*x}")
+        # x+(-x)=0
+        if -x + x != zero:
+            print(f"Additive inverse failed!")
+            print(f"{-x} + {x} == {-x + x}")
+            return
+
+        if not is_multiplication_commutative(x,y):
+            return
+        
+        if not is_multiplication_associative(x,y,z):
             return
 
         # x*1=x
@@ -67,12 +109,6 @@ def test_field_axioms(p=5, tests=1000):
         # x*(y+z)=(x*y)+(x*z)
         if x*(y+z) != (x*y)+(x*z):
             print("Distributivity broken!")
-            return
-
-        # x+(-x)=0
-        if -x + x != zero:
-            print(f"Additive inverse failed!")
-            print(f"{-x} + {x} == {-x + x}")
             return
         
 
